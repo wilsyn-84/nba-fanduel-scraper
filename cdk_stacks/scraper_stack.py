@@ -9,28 +9,17 @@ from aws_cdk import (
 import os
 
 
-class ScrapperStack(core.Stack):
+class ScraperStack(core.Stack):
 
     def __init__(self, scope: core.Construct, construct_id: str, configs, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # The code that defines your stack goes here
-        bucket = s3.Bucket(self, "ScrapperBucket",
+        bucket = s3.Bucket(self, "ScraperBucket-{}".format(configs['stage']),
             bucket_name = 'scrapper-{}-{}'.format(configs['stage'],configs['aws_account'])
         )
-        '''
-        scrapper_fn = aws_lambda_python.PythonFunction(self, "ScrapperCronFn",
-            entry="src/FanduelScrapper", # required
-            index="index.py", # optional, defaults to 'index.py'
-            handler="handler", # optional, defaults to 'handler'
-            runtime=aws_lambda.Runtime.PYTHON_3_8,
-            timeout = core.Duration.seconds(300),
-            memory_size = 1048,
-            environment={
-                "BUCKET_NAME": bucket.bucket_name
-            }
-        )'''
-        scrapper_fn = aws_lambda.Function(self, "ScrapperCronFn",
+
+        scrapper_fn = aws_lambda.Function(self, "ScraperCronFn-{}".format(configs['stage']),
             function_name = "scrapper-{}".format(configs['stage']),
             code=aws_lambda.Code.from_asset("src/fanduelscrapper",
                 bundling={
@@ -54,7 +43,7 @@ class ScrapperStack(core.Stack):
         bucket.grant_write(scrapper_fn)
 
         if(configs['stage'] == 'prod'):
-            rule = events.Rule(self, "ScrapperCronRule",
+            rule = events.Rule(self, "ScraperCronRule-{}".format(configs['stage']),
                 schedule=events.Schedule.cron(
                     minute='0',
                     hour='9',

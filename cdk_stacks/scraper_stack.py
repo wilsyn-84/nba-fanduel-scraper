@@ -16,12 +16,12 @@ class ScraperStack(core.Stack):
 
         # The code that defines your stack goes here
         bucket = s3.Bucket(self, "ScraperBucket-{}".format(configs['stage']),
-            bucket_name = 'scrapper-{}-{}'.format(configs['stage'],configs['aws_account'])
+            bucket_name = 'scraper-{}-{}'.format(configs['stage'],configs['aws_account'])
         )
 
         scrapper_fn = aws_lambda.Function(self, "ScraperCronFn-{}".format(configs['stage']),
-            function_name = "scrapper-{}".format(configs['stage']),
-            code=aws_lambda.Code.from_asset("src/fanduelscrapper",
+            function_name = "scraper-{}".format(configs['stage']),
+            code=aws_lambda.Code.from_asset("src/fanduelscraper",
                 bundling={
                     "image": aws_lambda.Runtime.PYTHON_3_8.bundling_docker_image,
                     "command": ["bash", "-c", 

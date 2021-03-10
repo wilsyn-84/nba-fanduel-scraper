@@ -18,6 +18,7 @@ Source code is located in `src > FanduelScraper`
 * AWS CDK 1.90.1
 * AWS SAM 1.18.2
 * Docker version 20.10.3
+
 ** I am locally using a new Macbook with the M1 chip and have had some trouble installing specific python modules on 3.9
 
 ### Local Testing 

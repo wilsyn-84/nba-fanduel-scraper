@@ -46,7 +46,7 @@ class ScraperStack(core.Stack):
             rule = events.Rule(self, "ScraperCronRule-{}".format(configs['stage']),
                 schedule=events.Schedule.cron(
                     minute='0',
-                    hour='18',
+                    hour='12,18',
                     month='*',
                     week_day='*',
                     year='*'),

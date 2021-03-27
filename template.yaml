@@ -1,0 +1,174 @@
+Resources:
+  ScrapperBucketE82F9631:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: scrapper-dev-269350797537
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: scrapper/ScrapperBucket/Resource
+  ScrapperCronFnServiceRoleCDD4C615:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: scrapper/ScrapperCronFn/ServiceRole/Resource
+  ScrapperCronFnServiceRoleDefaultPolicyC7572D78:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:DeleteObject*
+              - s3:PutObject
+              - s3:Abort*
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - ScrapperBucketE82F9631
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - ScrapperBucketE82F9631
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+      PolicyName: ScrapperCronFnServiceRoleDefaultPolicyC7572D78
+      Roles:
+        - Ref: ScrapperCronFnServiceRoleCDD4C615
+    Metadata:
+      aws:cdk:path: scrapper/ScrapperCronFn/ServiceRole/DefaultPolicy/Resource
+  ScrapperCronFnA2C6012E:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098S3Bucket63CC9037
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098S3VersionKey1455E5D0
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098S3VersionKey1455E5D0
+      Role:
+        Fn::GetAtt:
+          - ScrapperCronFnServiceRoleCDD4C615
+          - Arn
+      Environment:
+        Variables:
+          BUCKET_NAME:
+            Ref: ScrapperBucketE82F9631
+      Handler: index.handler
+      MemorySize: 1048
+      Runtime: python3.8
+      Timeout: 300
+    DependsOn:
+      - ScrapperCronFnServiceRoleDefaultPolicyC7572D78
+      - ScrapperCronFnServiceRoleCDD4C615
+    Metadata:
+      aws:cdk:path: scrapper/ScrapperCronFn/Resource
+      aws:asset:path: /Users/matthewhoty/repos/nba-fanduel-scraper/cdk.out/asset.0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098
+      aws:asset:property: Code
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.90.1,@aws-cdk/assets=1.90.1,@aws-cdk/aws-apigateway=1.90.1,@aws-cdk/aws-apigatewayv2=1.90.1,@aws-cdk/aws-applicationautoscaling=1.90.1,@aws-cdk/aws-autoscaling=1.90.1,@aws-cdk/aws-autoscaling-common=1.90.1,@aws-cdk/aws-autoscaling-hooktargets=1.90.1,@aws-cdk/aws-batch=1.90.1,@aws-cdk/aws-certificatemanager=1.90.1,@aws-cdk/aws-cloudformation=1.90.1,@aws-cdk/aws-cloudfront=1.90.1,@aws-cdk/aws-cloudwatch=1.90.1,@aws-cdk/aws-codebuild=1.90.1,@aws-cdk/aws-codecommit=1.90.1,@aws-cdk/aws-codeguruprofiler=1.90.1,@aws-cdk/aws-codepipeline=1.90.1,@aws-cdk/aws-cognito=1.90.1,@aws-cdk/aws-ec2=1.90.1,@aws-cdk/aws-ecr=1.90.1,@aws-cdk/aws-ecr-assets=1.90.1,@aws-cdk/aws-ecs=1.90.1,@aws-cdk/aws-efs=1.90.1,@aws-cdk/aws-elasticloadbalancing=1.90.1,@aws-cdk/aws-elasticloadbalancingv2=1.90.1,@aws-cdk/aws-events=1.90.1,@aws-cdk/aws-events-targets=1.90.1,@aws-cdk/aws-iam=1.90.1,@aws-cdk/aws-kinesis=1.90.1,@aws-cdk/aws-kinesisfirehose=1.90.1,@aws-cdk/aws-kms=1.90.1,@aws-cdk/aws-lambda=1.90.1,@aws-cdk/aws-lambda-python=1.90.1,@aws-cdk/aws-logs=1.90.1,@aws-cdk/aws-route53=1.90.1,@aws-cdk/aws-route53-targets=1.90.1,@aws-cdk/aws-s3=1.90.1,@aws-cdk/aws-s3-assets=1.90.1,@aws-cdk/aws-sam=1.90.1,@aws-cdk/aws-secretsmanager=1.90.1,@aws-cdk/aws-servicediscovery=1.90.1,@aws-cdk/aws-sns=1.90.1,@aws-cdk/aws-sns-subscriptions=1.90.1,@aws-cdk/aws-sqs=1.90.1,@aws-cdk/aws-ssm=1.90.1,@aws-cdk/aws-stepfunctions=1.90.1,@aws-cdk/cloud-assembly-schema=1.90.1,@aws-cdk/core=1.90.1,@aws-cdk/custom-resources=1.90.1,@aws-cdk/cx-api=1.90.1,@aws-cdk/region-info=1.90.1,jsii-runtime=Python/3.9.1
+    Metadata:
+      aws:cdk:path: scrapper/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Parameters:
+  AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098S3Bucket63CC9037:
+    Type: String
+    Description: S3 bucket for asset "0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098"
+  AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098S3VersionKey1455E5D0:
+    Type: String
+    Description: S3 key for asset version "0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098"
+  AssetParameters0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098ArtifactHash889CD4DF:
+    Type: String
+    Description: Artifact hash for asset "0b724b445d1f07c945e50fa50fb04c8639d6201475e158b2512209a2ec2e3098"
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+

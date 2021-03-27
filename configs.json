@@ -1,0 +1,10 @@
+{
+    "dev":{
+        "stage":"dev",
+        "aws_account":269350797537
+    },
+    "prod":{
+        "stage":"prod",
+        "aws_account":269350797537
+    }
+}

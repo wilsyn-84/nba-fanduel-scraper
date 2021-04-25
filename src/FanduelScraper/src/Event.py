@@ -7,7 +7,8 @@ class Event:
         self.sportLeague = details.get('sportname')
         self.sportType = details.get('idfosporttype')
         self.startTime = details.get('tsstart')
-        self.eventMarkets = details.get('eventmarketgroups')
+        self.eventMarketGroups = [{"name": "All", "markets": details.get('markets')}]
+        self.eventMarkets = details.get('markets')
         #self.eventMarkets = []
 
     def extract_markets(self):

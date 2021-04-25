@@ -39,7 +39,7 @@ cdk synth --no-staging scrapper -c stage=<stage> > template.yaml
 ```
 After synth, you need to find the function name from the `template.yaml` output file.  With that function name, calling the command below will spin in a AWS Lambda specific docker container to replicate the environment.  
 ```
-sam local invoke <MyFunction> --no-event 
+sam local invoke -v cdk.out <MyFunction> --no-event 
 ```
 
 ### Deployment

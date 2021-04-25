@@ -8,7 +8,9 @@ with open('configs.json') as f:
   configs = json.load(f)
 
 app = core.App()
-configs = configs[app.node.try_get_context("stage")]
-ScraperStack(app, "scrapper", configs)
+#configs = configs[app.node.try_get_context("stage")]
+
+ScraperStack(app, "scraper-dev", configs['dev'])
+ScraperStack(app, "scraper-prod", configs['prod'])
 
 app.synth()

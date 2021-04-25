@@ -19,36 +19,56 @@ class ScraperStack(core.Stack):
             bucket_name = 'scraper-{}-{}'.format(configs['stage'],configs['aws_account'])
         )
 
-        scrapper_fn = aws_lambda.Function(self, "ScraperCronFn-{}".format(configs['stage']),
+        scraper_fn = aws_lambda.Function(self, "ScraperFn-{}".format(configs['stage']),
             function_name = "scraper-{}".format(configs['stage']),
             code=aws_lambda.Code.from_asset("src/fanduelscraper",
                 bundling={
                     "image": aws_lambda.Runtime.PYTHON_3_8.bundling_docker_image,
                     "command": ["bash", "-c", 
-                                "pip install -r requirements.txt -t /asset-output && cp -au index.py NBA /asset-output"
+                                "pip install -r requirements.txt -t /asset-output && cp -au index.py src /asset-output"
                             ]
                 }
             ),
-            handler="index.handler",
+            handler="index.scraper",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             timeout = core.Duration.seconds(300),
             memory_size = 1048,
             environment={
                 "BUCKET_NAME": bucket.bucket_name
             }
+ 
+        )
 
+        scraper_handler_fn = aws_lambda.Function(self, "ScraperHandlerFn-{}".format(configs['stage']),
+            function_name = "scraper-handler-{}".format(configs['stage']),
+            code=aws_lambda.Code.from_asset("src/fanduelscraper",
+                bundling={
+                    "image": aws_lambda.Runtime.PYTHON_3_8.bundling_docker_image,
+                    "command": ["bash", "-c", 
+                                "pip install -r requirements.txt -t /asset-output && cp -au index.py src /asset-output"
+                            ]
+                }
+            ),
+            handler="index.scraper_handler",
+            runtime=aws_lambda.Runtime.PYTHON_3_8,
+            timeout = core.Duration.seconds(300),
+            memory_size = 1048,
+            environment={
+                "SCRAPER_FN": scraper_fn.function_name
+            }
         )
 
         #Make sure to give lambda permission to write to S3 bucket
-        bucket.grant_write(scrapper_fn)
+        bucket.grant_write(scraper_fn)
+        scraper_fn.grant_invoke(scraper_handler_fn)
 
         if(configs['stage'] == 'prod'):
             rule = events.Rule(self, "ScraperCronRule-{}".format(configs['stage']),
                 schedule=events.Schedule.cron(
                     minute='0',
-                    hour='12,18',
+                    hour='*',
                     month='*',
                     week_day='*',
                     year='*'),
             )
-            rule.add_target(targets.LambdaFunction(scrapper_fn))
+            rule.add_target(targets.LambdaFunction(scraper_handler_fn))

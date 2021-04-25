@@ -1,5 +1,5 @@
 
-class Game:
+class Event:
     def __init__(self, details):
         self.details = details
         self.desc = details.get('externaldescription')

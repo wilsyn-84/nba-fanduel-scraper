@@ -6,10 +6,11 @@ import io
 import datetime
 import json
 from src.scraper import Scaper
-
+'''
 sport_event_configs = {
     "nba": {"games": {"code": "63747.3", "details": True}, },
     "mlb": {"games": {"code": "60826.3", "details": True}, },
+    "nfl": {"games": {"code": "60826.3", "details": True}, },
     "golf": {
         "winner": {"code": "68160.3", "details": False},
         "top5": {"code": "67760.3", "details": False},
@@ -20,7 +21,15 @@ sport_event_configs = {
         "groupBetting": {"code": "67753.3", "details": False},
     }
 }
-
+'''
+sport_event_configs = {
+    "nba": {"games": {"code": "63747.3", "details": True}, }
+}
+'''
+The handler fires off a lambda for each sport we want to scrape
+'''
+## TODO:
+## Have a better config manager for sports
 def scraper_handler(event,context):
     lambda_client = boto3.client('lambda')
     for key in sport_event_configs:
@@ -44,13 +53,16 @@ def scraper(event, context):
     sport_configs = event['sport_configs']
     bucket = os.environ.get('BUCKET_NAME')
     
-    scraper = Scaper(sport, sport_configs)
+    print("Starting Scaper for {}".format(sport))
+
+    scraper = Scaper(sport)
     data = scraper.download_data()
+
     files = {
         'selections': {"file": "{}/{}/selections/selections_{}.csv.gz", "type": "csv"},
-        'events_response': {"file": "{}/{}/events/events_{}.json.gz", "type": "json"},
-        'event_details_response': {"file": "{}/{}/event_details/event_details_{}.json.gz", "type": "json"},
+        'responses': {"file": "{}/{}/events/events_{}.json.gz", "type": "json"},
     }
+
     for key in data:
         filename = files[key]['file'].format(
             sport,
@@ -64,6 +76,7 @@ def scraper(event, context):
     }
 #data = data[key]
 #filename = files[key]['file']
+#filetype = 'csv'
 def writeDataToS3(data, bucket, filename, filetype):
     file = None
     if filetype.lower() == 'csv':
@@ -72,36 +85,15 @@ def writeDataToS3(data, bucket, filename, filetype):
         file = write_json(data)
 
     if file:
-        print("Send to S3")
+        print("Send to S3 - {}".format(filename))
         client = boto3.client('s3')
         client.put_object(Body=file, Bucket=bucket, Key=filename)
-'''
-def write_csv(data):
-    print('Writing CSV')
-    inmem = io.StringIO()
-    fieldnames = data[0].keys()
-    csv_writer = csv.DictWriter(inmem,fieldnames=fieldnames)
-    csv_writer.writeheader()
-    for row in data:
-        csv_writer.writerow(row)
-    return inmem.getvalue()
-'''
 
 def write_csv(data):
-    inmem = io.BytesIO()
-    with gzip.GzipFile(fileobj=inmem, mode='w') as gz:
-        buff = io.StringIO()
-        fieldnames = data[0].keys()
-        csv_writer = csv.DictWriter(buff,fieldnames=fieldnames)
-        csv_writer.writeheader()
-        for row in data:
-            csv_writer.writerow(row)
-        print("Writing data to gzipped file.")
-        gz.write(buff.getvalue().encode())
-        print("Data written")
-        gz.close()
-        inmem.seek(0)
-    return inmem
+    csv_buffer = io.StringIO()
+    #data.to_csv(csv_buffer, compression='gzip')
+    data.to_csv(csv_buffer, compression='gzip')
+    return csv_buffer.getvalue().encode()
 
 
 def write_json(data, default=None, encoding='utf-8'):
@@ -113,6 +105,3 @@ def write_json(data, default=None, encoding='utf-8'):
     inmem.seek(0)
     return inmem
 
-
-#handler('','')
-"""date > type > sport > csv?"""

@@ -1,3 +1,6 @@
+##############################
+## Team Lookup CSV to JSON
+##############################
 import csv
 
 slug_data = {}
@@ -26,3 +29,7 @@ with open('NBA/team_lookup_slug.json', 'w') as outfile:
 
 with open('NBA/team_lookup_id.json', 'w') as outfile:
     json.dump(id_data, outfile)
+
+##############################
+## Player Prop History Df to JSON
+##############################

@@ -19,6 +19,10 @@ class Scaper:
             ("timezone", "America%2FChicago"),
             ("_ak", "FhMFpcPWXMeyZxOx")
         ]
+        self.event_details_tabs = [
+            'popular',
+            'same-game-parlay-'
+        ]
         self.date = datetime.date.today().strftime("%Y-%m-%d")
         self.request_responses = {
             "event": [],
@@ -63,14 +67,22 @@ class Scaper:
         '''
         print('Getting Event Details - {}'.format(event_id))
         url = self.api_url.format("event-page")
-        params = self.api_query_params + [
-            ("usePlayerPropsVirtualMarket", "true"),
-            ("eventId", event_id)
-        ]
-        response = helpers.make_request(url, params)
-        self.request_responses['event_details'][event_id] = response.json()
-        markets = self._parse_event_details(response.json())
-        df = self._markets_to_df(markets)
+
+        df_list = []
+        for tab in self.event_details_tabs:
+            params = self.api_query_params + [
+                ("usePlayerPropsVirtualMarket", "true"),
+                ("eventId", event_id),
+                ("tab", tab)
+            ]
+            response = helpers.make_request(url, params)
+            self.request_responses['event_details'][event_id] = response.json()
+            markets = self._parse_event_details(response.json())
+            df_list.append(self._markets_to_df(markets))
+            #df = self._markets_to_df(markets)
+            #df_list.append(df)
+        df = pd.concat(df_list)
+        df.drop_duplicates()
         return df
 
     def _parse_event_details(self, response):

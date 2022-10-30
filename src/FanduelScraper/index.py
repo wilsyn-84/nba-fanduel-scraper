@@ -47,7 +47,7 @@ def scraper_handler(event,context):
     }
 #key = 'nba'
 #event = {"sport":key, "sport_configs": sport_event_configs[key]}
-#os.environ['BUCKET_NAME'] = 'scraper-prod-269350797537'
+#os.environ['BUCKET_NAME'] = 'scraper-dev-269350797537'
 def scraper(event, context):
     sport = event['sport']
     sport_configs = event['sport_configs']
